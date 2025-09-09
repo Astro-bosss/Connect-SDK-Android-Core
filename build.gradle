@@ -12,6 +12,9 @@ buildscript {
 
 apply plugin: 'com.android.library'
 apply plugin: 'maven-publish'
+group = project.findProperty("group") ?: 'com.github.Astro-bosss'
+version = project.findProperty("version") ?: 'v3.0.2-SNAPSHOT'
+
 apply plugin: 'kotlin-android'
 
 allprojects {
