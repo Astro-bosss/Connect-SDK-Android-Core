@@ -1,4 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
     <application android:usesCleartextTraffic="true">
         <!-- Class referenced in the manifest, com.connectsdk.androidcore.ScreenOnOffReceiver, was not found in the project or the libraries -->
         <receiver android:name=".ScreenOnOffReceiver"

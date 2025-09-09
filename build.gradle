@@ -57,6 +57,10 @@ android {
 }
 
 dependencies {
+    implementation files('libs/lgcast-android-lib.jar')
+
+    implementation 'org.apache.httpcomponents:httpclient-android:4.3.5.1'
+
     implementation 'org.java-websocket:Java-WebSocket:1.5.7'
     implementation 'org.jmdns:jmdns:3.5.9'
     implementation 'androidx.preference:preference:1.2.1'
