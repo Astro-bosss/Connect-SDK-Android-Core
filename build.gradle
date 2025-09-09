@@ -22,6 +22,10 @@ android {
 
     useLibrary 'org.apache.http.legacy'
 
+    buildFeatures {
+        buildConfig true
+    }
+
     sourceSets {
         main {
             manifest.srcFile 'AndroidManifest.xml'
