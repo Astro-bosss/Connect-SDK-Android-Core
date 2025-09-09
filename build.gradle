@@ -20,9 +20,8 @@ android {
         targetSdkVersion 34
     }
 
-    // Modern projelerde sourceSets'i manuel olarak bu kadar detaylı
-    // tanımlamaya genellikle gerek yoktur. Gradle standart yolları bilir.
-    // Bu bloğu basitleştiriyoruz.
+    useLibrary 'org.apache.http.legacy'
+
     sourceSets {
         main {
             manifest.srcFile 'AndroidManifest.xml'
