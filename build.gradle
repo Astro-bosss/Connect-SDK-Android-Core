@@ -1,21 +1,13 @@
 buildscript {
-    repositories {
-        google()
-        mavenCentral()
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:8.2.2'
-    }
+    repositories { google(); mavenCentral() }
+    dependencies { classpath 'com.android.tools.build:gradle:8.2.2' }
 }
 
 apply plugin: 'com.android.library'
 apply plugin: 'maven-publish'
 
 allprojects {
-    repositories {
-        google()
-        mavenCentral()
-    }
+    repositories { google(); mavenCentral() }
 }
 
 android {
@@ -28,26 +20,21 @@ android {
         targetSdkVersion 34
     }
 
-    packagingOptions {
-        exclude 'LICENSE.txt'
-        exclude 'META-INF/LICENSE'
-        exclude 'META-INF/LICENSE.txt'
-        exclude 'META-INF/NOTICE'
-    }
-
+    // Modern projelerde sourceSets'i manuel olarak bu kadar detaylı
+    // tanımlamaya genellikle gerek yoktur. Gradle standart yolları bilir.
+    // Bu bloğu basitleştiriyoruz.
     sourceSets {
         main {
             manifest.srcFile 'AndroidManifest.xml'
             java.srcDirs = ['src']
             res.srcDirs = ['res']
             assets.srcDirs = ['assets']
+            // libs klasörü zaten standart bir yerdir, belirtmeye gerek yok.
         }
     }
 
     buildTypes {
-        release {
-            minifyEnabled false
-        }
+        release { minifyEnabled false }
     }
 
     compileOptions {
@@ -57,15 +44,17 @@ android {
 }
 
 dependencies {
-    implementation files('libs/lgcast-android-lib.jar')
+    // Bu, libs klasöründeki TÜM .jar dosyalarını dahil eder.
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
 
+    // Apache HTTP bağımlılığı
     implementation 'org.apache.httpcomponents:httpclient-android:4.3.5.1'
 
+    // Diğerleri...
     implementation 'org.java-websocket:Java-WebSocket:1.5.7'
     implementation 'org.jmdns:jmdns:3.5.9'
     implementation 'androidx.preference:preference:1.2.1'
     implementation 'com.google.android.gms:play-services-cast-framework:21.4.0'
-
     implementation 'com.googlecode.plist:dd-plist:1.28'
     implementation 'com.nimbusds:srp6a:2.1.0'
     implementation 'net.i2p.crypto:eddsa:0.3.0'
