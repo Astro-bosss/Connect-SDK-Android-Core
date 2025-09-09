@@ -50,6 +50,8 @@ dependencies {
     // Apache HTTP bağımlılığı
     implementation 'org.apache.httpcomponents:httpclient-android:4.3.5.1'
 
+    implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.1.0'
+
     // Diğerleri...
     implementation 'org.java-websocket:Java-WebSocket:1.5.7'
     implementation 'org.jmdns:jmdns:3.5.9'
