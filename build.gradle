@@ -52,7 +52,7 @@ dependencies {
     implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.1.0'
 
     // Diğerleri...
-    implementation 'org.java-websocket:Java-WebSocket:1.6.0'
+    implementation 'org.java-websocket:Java-WebSocket:1.5.7'
     implementation 'org.jmdns:jmdns:3.6.2'
     implementation 'androidx.preference:preference:1.2.1'
     implementation 'com.google.android.gms:play-services-cast-framework:22.1.0'
