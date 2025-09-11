@@ -1,21 +1,6 @@
-buildscript {
-    repositories {
-        google()
-        mavenCentral()
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:8.2.2'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.22"
-    }
-}
-
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'maven-publish'
-
-// JitPack için groupId/version
-group = project.findProperty("group") ?: "com.github.Astro-bosss"
-version = project.findProperty("version") ?: "3.0.7"
 
 android {
     namespace 'com.connectsdk'
@@ -26,101 +11,27 @@ android {
         targetSdk 34
     }
 
-    useLibrary 'org.apache.http.legacy'
-
     buildFeatures {
-        buildConfig = true
-    }
-
-    sourceSets {
-        main {
-            manifest.srcFile 'AndroidManifest.xml'
-            java.srcDirs = ['src']
-            res.srcDirs = ['res']
-            assets.srcDirs = ['assets']
-        }
-    }
-
-    buildTypes {
-        release {
-            minifyEnabled false
-        }
-        debug {
-            minifyEnabled false
-        }
+        buildConfig true
     }
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
-
-    testOptions {
-        unitTests {
-            includeAndroidResources = true
-        }
-    }
-
-    // ✅ Sadece release varyantını publish et
-    publishing {
-        singleVariant("release") {
-            withSourcesJar()
-        }
-    }
 }
 
 dependencies {
-    implementation fileTree(dir: "libs", include: ["*.jar"])
-
-    // Kotlin BOM – sürüm sabitleme
-    implementation platform("org.jetbrains.kotlin:kotlin-bom:1.9.22")
     implementation "org.jetbrains.kotlin:kotlin-stdlib"
 
-    // Çakışan eski jdk7/jdk8 paketlerini dışla
-    configurations.all {
-        exclude group: "org.jetbrains.kotlin", module: "kotlin-stdlib-jdk7"
-        exclude group: "org.jetbrains.kotlin", module: "kotlin-stdlib-jdk8"
-    }
-
-    // Kütüphaneler
+    implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation "androidx.localbroadcastmanager:localbroadcastmanager:1.1.0"
     implementation "org.java-websocket:Java-WebSocket:1.5.7"
-    implementation "org.jmdns:jmdns:3.6.2"
+    implementation "org.jmdns:jmdns:3.5.9"
     implementation "androidx.preference:preference:1.2.1"
     implementation "com.google.android.gms:play-services-cast-framework:21.4.0"
     implementation "com.googlecode.plist:dd-plist:1.28"
     implementation "com.nimbusds:srp6a:2.1.0"
     implementation "net.i2p.crypto:eddsa:0.3.0"
-
-    // Test bağımlılıkları
-    testImplementation "junit:junit:4.13.2"
-    testImplementation "org.mockito:mockito-core:4.11.0"
-    testImplementation "org.robolectric:robolectric:4.10.3"
-    testImplementation "androidx.test:core:1.5.0"
-    testImplementation "org.powermock:powermock-api-mockito:1.6.2"
-    testImplementation "xmlunit:xmlunit:1.6"
-    testImplementation "org.apache.ant:ant:1.10.12"
-}
-
-publishing {
-    publications {
-        create("release", MavenPublication) {
-            groupId = "com.github.Astro-bosss"
-            artifactId = "Connect-SDK-Android"
-            version = project.findProperty("version") ?: "3.0.7"
-
-            pom {
-                name.set("Connect SDK Core")
-                description.set("Android ConnectSDK core module")
-                url.set("https://github.com/Astro-bosss/Connect-SDK-Android")
-                licenses {
-                    license {
-                        name.set("Apache License 2.0")
-                        url.set("http://www.apache.org/licenses/LICENSE-2.0"
-                        )
-                    }
-                }
-            }
-        }
-    }
+    implementation 'org.apache.httpcomponents:httpclient-android:4.3.5.1'
 }
