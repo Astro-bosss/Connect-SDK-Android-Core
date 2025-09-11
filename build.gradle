@@ -1,7 +1,21 @@
-plugins {
-    id 'com.android.library'
-    id 'maven-publish'
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:8.2.2'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.22"
+    }
 }
+
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply plugin: 'maven-publish'
+
+// JitPack için groupId/version
+group = project.findProperty("group") ?: "com.github.Astro-bosss"
+version = project.findProperty("version") ?: "3.0.7"
 
 android {
     namespace 'com.connectsdk'
@@ -10,26 +24,26 @@ android {
     defaultConfig {
         minSdk 24
         targetSdk 34
-        // Eğer Apache HTTP legacy gerekiyorsa, aşağıdaki satırı uncomment edin:
-        // useLibrary 'org.apache.http.legacy'
     }
 
-    // AGP 8+ için buildToolsVersion belirtmeye gerek yok (otomatik seçer)
+    useLibrary 'org.apache.http.legacy'
+
+    buildFeatures {
+        buildConfig = true
+    }
 
     sourceSets {
         main {
-            manifest.srcFile 'src/main/AndroidManifest.xml'
-            java.srcDirs = ['src/main/java']
-            res.srcDirs = ['src/main/res']
-            assets.srcDirs = ['src/main/assets']
-            // libs klasörü otomatik tanınır; ayrıca fileTree de ekliyoruz.
+            manifest.srcFile 'AndroidManifest.xml'
+            java.srcDirs = ['src']
+            res.srcDirs = ['res']
+            assets.srcDirs = ['assets']
         }
     }
 
     buildTypes {
         release {
             minifyEnabled false
-            // consumerProguardFiles 'consumer-rules.pro' // gerekiyorsa ekleyin
         }
         debug {
             minifyEnabled false
@@ -40,45 +54,72 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
+        }
+    }
+
+    // ✅ Sadece release varyantını publish et
+    publishing {
+        singleVariant("release") {
+            withSourcesJar()
+        }
+    }
 }
 
 dependencies {
-    // libs klasöründeki tüm jar'ları dahil et
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation fileTree(dir: "libs", include: ["*.jar"])
 
-    // JmDNS (zeroconf) — ÖNEMLİ
-    implementation 'org.jmdns:jmdns:3.6.2'
+    // Kotlin BOM – sürüm sabitleme
+    implementation platform("org.jetbrains.kotlin:kotlin-bom:1.9.22")
+    implementation "org.jetbrains.kotlin:kotlin-stdlib"
 
-    // Apache HTTP client (gerekiyorsa)
-    implementation 'org.apache.httpcomponents:httpclient-android:4.3.5.1'
+    // Çakışan eski jdk7/jdk8 paketlerini dışla
+    configurations.all {
+        exclude group: "org.jetbrains.kotlin", module: "kotlin-stdlib-jdk7"
+        exclude group: "org.jetbrains.kotlin", module: "kotlin-stdlib-jdk8"
+    }
 
-    // AndroidX
-    implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.1.0'
-    implementation 'androidx.preference:preference:1.2.1'
+    // Kütüphaneler
+    implementation "androidx.localbroadcastmanager:localbroadcastmanager:1.1.0"
+    implementation "org.java-websocket:Java-WebSocket:1.5.7"
+    implementation "org.jmdns:jmdns:3.6.2"
+    implementation "androidx.preference:preference:1.2.1"
+    implementation "com.google.android.gms:play-services-cast-framework:21.4.0"
+    implementation "com.googlecode.plist:dd-plist:1.28"
+    implementation "com.nimbusds:srp6a:2.1.0"
+    implementation "net.i2p.crypto:eddsa:0.3.0"
 
-    // Diğer bağımlılıklar
-    implementation 'org.java-websocket:Java-WebSocket:1.5.7'
-    implementation 'com.google.android.gms:play-services-cast-framework:21.4.0'
-    implementation 'com.googlecode.plist:dd-plist:1.28'
-    implementation 'com.nimbusds:srp6a:2.1.0'
-    implementation 'net.i2p.crypto:eddsa:0.3.0'
+    // Test bağımlılıkları
+    testImplementation "junit:junit:4.13.2"
+    testImplementation "org.mockito:mockito-core:4.11.0"
+    testImplementation "org.robolectric:robolectric:4.10.3"
+    testImplementation "androidx.test:core:1.5.0"
+    testImplementation "org.powermock:powermock-api-mockito:1.6.2"
+    testImplementation "xmlunit:xmlunit:1.6"
+    testImplementation "org.apache.ant:ant:1.10.12"
 }
 
-afterEvaluate {
-    publishing {
-        publications {
-            create("release", MavenPublication) {
-                groupId = "com.connectsdk"
-                artifactId = "core"
-                version = "1.0.0"
+publishing {
+    publications {
+        create("release", MavenPublication) {
+            groupId = "com.github.Astro-bosss"
+            artifactId = "Connect-SDK-Android"
+            version = project.findProperty("version") ?: "3.0.7"
 
-                // Android Library için doğru publication
-                from components.findByName("default")
-            }
-        }
-        repositories {
-            maven {
-                url = uri("${rootProject.projectDir}/repo")
+            pom {
+                name.set("Connect SDK Core")
+                description.set("Android ConnectSDK core module")
+                url.set("https://github.com/Astro-bosss/Connect-SDK-Android")
+                licenses {
+                    license {
+                        name.set("Apache License 2.0")
+                        url.set("http://www.apache.org/licenses/LICENSE-2.0"
+                        )
+                    }
+                }
             }
         }
     }
