@@ -35,3 +35,17 @@ dependencies {
     implementation "net.i2p.crypto:eddsa:0.3.0"
     implementation 'org.apache.httpcomponents:httpclient-android:4.3.5.1'
 }
+
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                from components.release
+
+                groupId = "com.github.Astro-bosss"
+                artifactId = "core" // Kütüphane modülünüzün adı
+                version = project.findProperty("version") ?: "1.0.0-SNAPSHOT"
+            }
+        }
+    }
+}
