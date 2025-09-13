@@ -26,7 +26,7 @@ dependencies {
 
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation "androidx.localbroadcastmanager:localbroadcastmanager:1.1.0"
-    implementation "org.java-websocket:Java-WebSocket:1.5.7"
+    implementation "org.java-websocket:Java-WebSocket:1.5.3"
     implementation "org.jmdns:jmdns:3.5.9"
     implementation "androidx.preference:preference:1.2.1"
     implementation "com.google.android.gms:play-services-cast-framework:21.4.0"
@@ -36,6 +36,12 @@ dependencies {
     implementation 'org.apache.httpcomponents:httpclient-android:4.3.5.1'
 }
 
+// FINAL CORRECTION: Use 'archiveClassifier.set()' for modern Gradle/AGP.
+task sourcesJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    archiveClassifier.set('sources')
+}
+
 afterEvaluate {
     publishing {
         publications {
@@ -43,8 +49,35 @@ afterEvaluate {
                 from components.release
 
                 groupId = "com.github.Astro-bosss"
-                artifactId = "core" // Kütüphane modülünüzün adı
+                artifactId = "Connect-SDK-Android"
                 version = project.findProperty("version") ?: "1.0.0-SNAPSHOT"
+
+                // This will now work correctly.
+                artifact(sourcesJar)
+
+                // Full pom.xml configuration
+                pom {
+                    name = "Connect SDK Android"
+                    description = "Modernized fork of Connect SDK for Android to support AndroidX and modern Gradle."
+                    url = "https://github.com/Astro-bosss/Connect-SDK-Android"
+                    licenses {
+                        license {
+                            name = 'The Apache License, Version 2.0'
+                            url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        }
+                    }
+                    developers {
+                        developer {
+                            id = 'Astro-bosss'
+                            name = 'Baris Salih Babacan'
+                        }
+                    }
+                    scm {
+                        connection = 'scm:git:github.com/Astro-bosss/Connect-SDK-Android.git'
+                        developerConnection = 'scm:git:ssh://github.com/Astro-bosss/Connect-SDK-Android.git'
+                        url = 'https://github.com/Astro-bosss/Connect-SDK-Android/tree/master'
+                    }
+                }
             }
         }
     }
