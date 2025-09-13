@@ -19,6 +19,13 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+
+    // YENİ VE MODERN YÖNTEM: AGP'ye kaynakları otomatik olarak yayınlamasını söylüyoruz.
+    publishing {
+        singleVariant('release') {
+            withSourcesJar()
+        }
+    }
 }
 
 dependencies {
@@ -26,7 +33,7 @@ dependencies {
 
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation "androidx.localbroadcastmanager:localbroadcastmanager:1.1.0"
-    implementation "org.java-websocket:Java-WebSocket:1.5.3"
+    implementation "org.java-websocket:Java-WebSocket:1.5.7"
     implementation "org.jmdns:jmdns:3.5.9"
     implementation "androidx.preference:preference:1.2.1"
     implementation "com.google.android.gms:play-services-cast-framework:21.4.0"
@@ -36,26 +43,22 @@ dependencies {
     implementation 'org.apache.httpcomponents:httpclient-android:4.3.5.1'
 }
 
-// FINAL CORRECTION: Use 'archiveClassifier.set()' for modern Gradle/AGP.
-task sourcesJar(type: Jar) {
-    from android.sourceSets.main.java.srcDirs
-    archiveClassifier.set('sources')
-}
-
 afterEvaluate {
     publishing {
         publications {
             release(MavenPublication) {
+                // Bu satır, AGP'nin `publishing` bloğunda hazırladığı
+                // hem .aar hem de -sources.jar dosyalarını otomatik olarak alır.
                 from components.release
 
                 groupId = "com.github.Astro-bosss"
                 artifactId = "Connect-SDK-Android"
                 version = project.findProperty("version") ?: "1.0.0-SNAPSHOT"
 
-                // This will now work correctly.
-                artifact(sourcesJar)
+                // 'artifact(sourcesJar)' satırına artık gerek yok, çünkü 'from components.release'
+                // bunu bizim için otomatik olarak halledecek.
 
-                // Full pom.xml configuration
+                // Eksiksiz pom.xml yapılandırması
                 pom {
                     name = "Connect SDK Android"
                     description = "Modernized fork of Connect SDK for Android to support AndroidX and modern Gradle."
