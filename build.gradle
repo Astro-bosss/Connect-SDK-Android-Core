@@ -1,5 +1,3 @@
-// core/build.gradle
-
 plugins {
     id 'com.android.library'
     id 'kotlin-android'
@@ -12,6 +10,8 @@ android {
     namespace 'com.connectsdk'
     compileSdk 34
 
+    // Bu komut, AndroidManifest.xml'deki <uses-library> etiketiyle birlikte
+    // Apache HttpClient kütüphanesini derlemeye dahil eder.
     useLibrary 'org.apache.http.legacy'
 
     defaultConfig {
@@ -19,7 +19,8 @@ android {
         targetSdk 34
     }
 
-    // Projenin eski yapısına uyum sağlamak için kaynak setlerini manuel olarak belirtiyoruz.
+    // Projenin eski "core/src" yapısına uyum sağlamak için kaynak setlerini
+    // manuel olarak ve doğru bir şekilde belirtiyoruz. Bu, "duplicate path" uyarısını çözer.
     sourceSets {
         main {
             manifest.srcFile 'AndroidManifest.xml'
@@ -42,9 +43,21 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+
+    // Android Gradle Plugin'in kendi mekanizmasını kullanarak -sources.jar dosyasını
+    // oluşturmasını sağlıyoruz. Bu, "implicit dependency" hatasını çözer.
+    publishing {
+        singleVariant('release') {
+            withSourcesJar()
+        }
+    }
 }
 
 dependencies {
+    // Apache HttpClient için artık harici bir kütüphaneye gerek yok,
+    // 'useLibrary' komutu bu işi görüyor.
+
+    // Projenin diğer tüm bağımlılıkları
     implementation "org.jetbrains.kotlin:kotlin-stdlib"
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation "androidx.localbroadcastmanager:localbroadcastmanager:1.1.0"
@@ -59,25 +72,24 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.6.1'
 }
 
-// Kaynak kodlardan '-sources.jar' dosyasını oluşturan görev
-task sourcesJar(type: Jar) {
-    from android.sourceSets.main.java.srcDirs
-    archiveClassifier.set('sources')
-}
+// Manuel 'task sourcesJar' görevine artık ihtiyacımız yok, çünkü yukarıdaki
+// 'android.publishing' bloğu bu işi otomatik ve hatasız yapıyor.
 
-// Yayınlama yapılandırması
 afterEvaluate {
     publishing {
         publications {
             release(MavenPublication) {
+                // 'from components.release' komutu, AGP'nin 'publishing' bloğunda
+                // hazırladığı hem .aar hem de -sources.jar dosyalarını otomatik olarak alır.
                 from components.release
 
-                // group yukarıda tanımlandığı için buradan okunacak
+                // 'group' yukarıda tanımlandığı için buradan okunacak
                 artifactId = "Connect-SDK-Android"
                 version = project.findProperty("version") ?: "1.0.0-SNAPSHOT"
 
-                artifact(sourcesJar)
+                // 'artifact(sourcesJar)' satırına artık gerek yok.
 
+                // Otomatik olarak oluşturulacak pom.xml dosyasının içeriği
                 pom {
                     name = "Connect SDK Android"
                     description = "Modernized fork of Connect SDK for Android to support AndroidX and modern Gradle."
