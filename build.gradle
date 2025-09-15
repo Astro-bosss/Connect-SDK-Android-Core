@@ -1,6 +1,10 @@
-apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
-apply plugin: 'maven-publish'
+// core/build.gradle
+
+plugins {
+    id 'com.android.library'
+    id 'kotlin-android'
+    id 'maven-publish'
+}
 
 android {
     namespace 'com.connectsdk'
@@ -11,27 +15,38 @@ android {
         targetSdk 34
     }
 
+    // Projenin eski ve özel dosya yapısını Gradle'a tanıtıyoruz
+    sourceSets {
+        main {
+            manifest.srcFile 'AndroidManifest.xml'
+            java.srcDirs = ['src'] // Kaynak kodların hem java hem kotlin için 'src' klasöründe olduğunu belirtiyoruz
+            res.srcDirs = ['res']
+            jniLibs.srcDirs = ['jniLibs']
+            assets.srcDirs = ['assets']
+        }
+    }
+
     buildFeatures {
         buildConfig true
+    }
+
+    packagingOptions {
+        // Build sırasında oluşabilecek dosya çakışmalarını engeller
+        resources {
+            excludes += '/META-INF/{AL2.0,LGPL2.1}'
+            excludes += 'META-INF/LICENSE.txt'
+        }
     }
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
-
-    // YENİ VE MODERN YÖNTEM: AGP'ye kaynakları otomatik olarak yayınlamasını söylüyoruz.
-    publishing {
-        singleVariant('release') {
-            withSourcesJar()
-        }
-    }
 }
 
 dependencies {
+    // Projenin tüm bağımlılıkları
     implementation "org.jetbrains.kotlin:kotlin-stdlib"
-
-    implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation "androidx.localbroadcastmanager:localbroadcastmanager:1.1.0"
     implementation "org.java-websocket:Java-WebSocket:1.5.7"
     implementation "org.jmdns:jmdns:3.5.9"
@@ -41,24 +56,31 @@ dependencies {
     implementation "com.nimbusds:srp6a:2.1.0"
     implementation "net.i2p.crypto:eddsa:0.3.0"
     implementation 'org.apache.httpcomponents:httpclient-android:4.3.5.1'
+    implementation 'androidx.mediarouter:mediarouter:1.6.0'
+    implementation files('libs/lgcast-android-lib.jar') // Lokal jar dosyasını dahil ediyoruz
 }
 
+// Kaynak kodlardan '-sources.jar' dosyasını oluşturan görev
+task sourcesJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    archiveClassifier.set('sources')
+}
+
+// Yayınlama yapılandırması
 afterEvaluate {
     publishing {
         publications {
             release(MavenPublication) {
-                // Bu satır, AGP'nin `publishing` bloğunda hazırladığı
-                // hem .aar hem de -sources.jar dosyalarını otomatik olarak alır.
                 from components.release
 
                 groupId = "com.github.Astro-bosss"
                 artifactId = "Connect-SDK-Android"
                 version = project.findProperty("version") ?: "1.0.0-SNAPSHOT"
 
-                // 'artifact(sourcesJar)' satırına artık gerek yok, çünkü 'from components.release'
-                // bunu bizim için otomatik olarak halledecek.
+                // Oluşturulan sources.jar'ı yayına dahil et
+                artifact(sourcesJar)
 
-                // Eksiksiz pom.xml yapılandırması
+                // Otomatik olarak pom.xml dosyasını oluşturacak blok
                 pom {
                     name = "Connect SDK Android"
                     description = "Modernized fork of Connect SDK for Android to support AndroidX and modern Gradle."
