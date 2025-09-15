@@ -12,6 +12,8 @@ android {
     namespace 'com.connectsdk'
     compileSdk 34
 
+    useLibrary 'org.apache.http.legacy'
+
     defaultConfig {
         minSdk 24
         targetSdk 34
@@ -43,10 +45,6 @@ android {
 }
 
 dependencies {
-    // Apache HttpClient hatası için en sağlam çözüm
-    implementation 'cz.msebera.android:httpclient:4.4.1.2'
-
-    // Diğer tüm bağımlılıklar
     implementation "org.jetbrains.kotlin:kotlin-stdlib"
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation "androidx.localbroadcastmanager:localbroadcastmanager:1.1.0"
