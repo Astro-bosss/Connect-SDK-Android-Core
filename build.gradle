@@ -10,20 +10,20 @@ android {
     namespace 'com.connectsdk'
     compileSdk 34
 
-    defaultConfig {
-        minSdk 24
-        targetSdk 34
-    }
-
-    // Projenin eski ve özel dosya yapısını Gradle'a tanıtıyoruz
+    // DÜZELTME: Kaynak setini sadece projenin gerçek yapısını yansıtacak şekilde sadeleştiriyoruz.
     sourceSets {
         main {
             manifest.srcFile 'AndroidManifest.xml'
-            java.srcDirs = ['src'] // Kaynak kodların hem java hem kotlin için 'src' klasöründe olduğunu belirtiyoruz
+            java.srcDirs = ['src'] // Artık tüm kaynaklar bu tek klasörden geliyor.
             res.srcDirs = ['res']
             jniLibs.srcDirs = ['jniLibs']
             assets.srcDirs = ['assets']
         }
+    }
+
+    defaultConfig {
+        minSdk 24
+        targetSdk 34
     }
 
     buildFeatures {
@@ -31,7 +31,6 @@ android {
     }
 
     packagingOptions {
-        // Build sırasında oluşabilecek dosya çakışmalarını engeller
         resources {
             excludes += '/META-INF/{AL2.0,LGPL2.1}'
             excludes += 'META-INF/LICENSE.txt'
@@ -45,8 +44,12 @@ android {
 }
 
 dependencies {
-    // Projenin tüm bağımlılıkları
+    // Apache HttpClient için en sağlam ve modern bağımlılık
+    implementation 'cz.msebera.android:httpclient:4.4.1.2'
+
+    // Diğer bağımlılıklar...
     implementation "org.jetbrains.kotlin:kotlin-stdlib"
+    implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation "androidx.localbroadcastmanager:localbroadcastmanager:1.1.0"
     implementation "org.java-websocket:Java-WebSocket:1.5.7"
     implementation "org.jmdns:jmdns:3.5.9"
@@ -55,19 +58,17 @@ dependencies {
     implementation "com.googlecode.plist:dd-plist:1.28"
     implementation "com.nimbusds:srp6a:2.1.0"
     implementation "net.i2p.crypto:eddsa:0.3.0"
-    implementation 'org.apache.httpcomponents:httpclient-android:4.3.5.1'
     implementation 'androidx.mediarouter:mediarouter:1.6.0'
-    implementation files('libs/lgcast-android-lib.jar') // Lokal jar dosyasını dahil ediyoruz
 }
 
-// Kaynak kodlardan '-sources.jar' dosyasını oluşturan görev
+// Kaynakları doğrudan 'src' klasöründen alacak şekilde güncellendi.
 task sourcesJar(type: Jar) {
     from android.sourceSets.main.java.srcDirs
     archiveClassifier.set('sources')
 }
 
-// Yayınlama yapılandırması
 afterEvaluate {
+    // ... yayınlama bloğu (publishing) aynı kalacak ...
     publishing {
         publications {
             release(MavenPublication) {
@@ -77,10 +78,8 @@ afterEvaluate {
                 artifactId = "Connect-SDK-Android"
                 version = project.findProperty("version") ?: "1.0.0-SNAPSHOT"
 
-                // Oluşturulan sources.jar'ı yayına dahil et
                 artifact(sourcesJar)
 
-                // Otomatik olarak pom.xml dosyasını oluşturacak blok
                 pom {
                     name = "Connect SDK Android"
                     description = "Modernized fork of Connect SDK for Android to support AndroidX and modern Gradle."
