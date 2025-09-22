@@ -10,8 +10,6 @@ android {
     namespace 'com.connectsdk'
     compileSdk 34
 
-    // Bu komut, AndroidManifest.xml'deki <uses-library> etiketiyle birlikte
-    // Apache HttpClient kütüphanesini derlemeye dahil eder.
     useLibrary 'org.apache.http.legacy'
 
     defaultConfig {
@@ -19,12 +17,14 @@ android {
         targetSdk 34
     }
 
-    // Projenin eski "core/src" yapısına uyum sağlamak için kaynak setlerini
-    // manuel olarak ve doğru bir şekilde belirtiyoruz. Bu, "duplicate path" uyarısını çözer.
     sourceSets {
         main {
             manifest.srcFile 'AndroidManifest.xml'
-            java.srcDirs = ['src']
+            java.srcDirs = [
+                    'src',
+                    '../modules/google_cast/src',
+                    '../modules/firetv/src'
+            ]
             res.srcDirs = ['res']
             jniLibs.srcDirs = ['jniLibs']
             assets.srcDirs = ['assets']
@@ -44,8 +44,6 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
-    // Android Gradle Plugin'in kendi mekanizmasını kullanarak -sources.jar dosyasını
-    // oluşturmasını sağlıyoruz. Bu, "implicit dependency" hatasını çözer.
     publishing {
         singleVariant('release') {
             withSourcesJar()
@@ -54,9 +52,6 @@ android {
 }
 
 dependencies {
-    // Apache HttpClient için artık harici bir kütüphaneye gerek yok,
-    // 'useLibrary' komutu bu işi görüyor.
-
     // Projenin diğer tüm bağımlılıkları
     implementation "org.jetbrains.kotlin:kotlin-stdlib"
     implementation fileTree(dir: "libs", include: ["*.jar"])
@@ -70,6 +65,8 @@ dependencies {
     implementation "net.i2p.crypto:eddsa:0.3.0"
     implementation 'androidx.mediarouter:mediarouter:1.6.0'
     implementation 'androidx.appcompat:appcompat:1.6.1'
+
+    implementation fileTree(dir: '../modules/firetv/libs', include: ['*.jar'])
 }
 
 // Manuel 'task sourcesJar' görevine artık ihtiyacımız yok, çünkü yukarıdaki
